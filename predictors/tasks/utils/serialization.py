@@ -2,11 +2,11 @@ import os
 import uuid
 from datetime import timedelta
 
+from common.exceptions import InputImageException
 from marshmallow import EXCLUDE, Schema, fields, validates
 from marshmallow.exceptions import ValidationError
 from marshmallow.validate import Length
 
-from common.exceptions import InputImageException
 from predictors.tasks.utils.image import decode_image_bytes, greyscale_image
 from predictors.tasks.utils.storage import download_blob, upload_blob
 

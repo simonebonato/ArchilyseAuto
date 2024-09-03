@@ -81,7 +81,7 @@ class EvaluationHook:
 
     def _get_latest_weights(self):
         cfg = self.trainer.cfg
-        if cfg.SOLVER.MAX_ITER == self.trainer.iter:
+        if self.trainer.iter == cfg.SOLVER.MAX_ITER:
             return Path(cfg.OUTPUT_DIR, "model_final.pth").as_posix()
         return Path(
             cfg.OUTPUT_DIR, f"model_{str(self.trainer.iter).zfill(7)}.pth"

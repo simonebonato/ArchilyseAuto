@@ -3,12 +3,12 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import google.cloud.storage as storage
-from freezegun import freeze_time
 
 # needs to be imported to initialize the celery tasks
 import predictors.tasks.prediction_tasks  # noqa 401
 from app import main
 from common.exceptions import InputImageException
+from freezegun import freeze_time
 
 
 @freeze_time("2021-01-01 00:00:00")

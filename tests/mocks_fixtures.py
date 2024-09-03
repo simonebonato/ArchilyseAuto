@@ -2,7 +2,6 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-
 from app.main import app
 
 
@@ -101,10 +100,9 @@ def fake_bucket(test_file_server, monkeypatch):
 
 @pytest.fixture
 def fake_predictor():
-    from shapely.geometry import box
-
     from predictors.predictors.base import BasePredictor
     from predictors.predictors.constants import ClassLabel
+    from shapely.geometry import box
 
     def fake_predict(image):
         h, w = image.shape[:2]

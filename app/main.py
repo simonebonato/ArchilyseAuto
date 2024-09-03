@@ -8,16 +8,16 @@ import validators
 from celery import group
 from celery.canvas import Signature
 from celery.result import AsyncResult
+from common.bucket import get_bucket
+from common.exceptions import InputImageException
 from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, Response
+from predictors.celery_conf.celery_app import celery_app
 from scout_apm.async_.starlette import ScoutMiddleware
 
 from app.constants import ALLOWED_MIME_TYPES
 from app.utils import logger
-from common.bucket import get_bucket
-from common.exceptions import InputImageException
-from predictors.celery_conf.celery_app import celery_app
 
 if validators.url(os.getenv("SENTRY_DSN")):
     import sentry_sdk

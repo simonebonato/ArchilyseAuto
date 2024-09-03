@@ -1,8 +1,7 @@
 import numpy as np
 import pytest
-from shapely.geometry import box
-
 from predictors.predictors.floorplans import FloorplanPredictor
+from shapely.geometry import box
 
 
 @pytest.mark.parametrize("pixels_per_meter", [40.0, 80.0])

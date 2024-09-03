@@ -1,9 +1,9 @@
 from collections import defaultdict
 
+from predictors.predictors.utils.geometry import get_polygons
 from shapely import unary_union
 
 from app.constants import LABELS_CONSIDERED_BATH_EXCLUSIVE, PIXEL_TO_METER_RATIO
-from predictors.predictors.utils.geometry import get_polygons
 
 
 def calculate_stats(labels, shapes):
