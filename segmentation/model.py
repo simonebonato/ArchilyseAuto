@@ -1,7 +1,8 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import mlflow
+
+# import mlflow
 import numpy as np
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
@@ -51,10 +52,10 @@ class FloorplanModel(pl.LightningModule):
         self.encoder_weights = encoder_weights
         self.output_directory = output_directory
         self.validation_dataset = validation_dataset
-        self.mlflow_tracking_uri = mlflow_tracking_uri
-        self.mlflow_experiment_name = mlflow_experiment_name
-        self.mlflow_run_name = mlflow_run_name
-        self.mlflow_initialized = False
+        # self.mlflow_tracking_uri = mlflow_tracking_uri
+        # self.mlflow_experiment_name = mlflow_experiment_name
+        # self.mlflow_run_name = mlflow_run_name
+        # self.mlflow_initialized = False
 
         if mean is not None and std is not None:
             self.register_buffer("std", torch.tensor(mean).view(1, 3, 1, 1))

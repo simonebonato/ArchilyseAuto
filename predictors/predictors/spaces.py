@@ -11,15 +11,15 @@ class SpacePredictor(BasePredictor):
     BUFFER_PX = 40
     UNBUFFER_PX = 30
 
-    def __init__(self):
+    def __init__(self, weights_path: str = None):
         # NOTE: For foreground prediction getting the instances correct doesn't matter
         # as we are union-ing all spaces later anyway
         self.predictor = TiledPredictor(
-            self.config(), max_instance_size=100, merge_threshold=0.1, tile_size=1024
+            self.config(weights_path), max_instance_size=100, merge_threshold=0.1, tile_size=1024
         )
 
     @staticmethod
-    def config():
+    def config(weights_path: str = None) -> get_cfg:
         import torch
 
         from predictors.tasks.utils.logging import logger
@@ -31,7 +31,7 @@ class SpacePredictor(BasePredictor):
             )
         )
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = 11
-        cfg.MODEL.WEIGHTS = "resources/spaces_model_final.pth"
+        cfg.MODEL.WEIGHTS = "resources/spaces_model_final.pth" if weights_path is None else weights_path
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         cfg.MODEL.DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
         logger.info(f"SpacePredictor using device {cfg.MODEL.DEVICE}")

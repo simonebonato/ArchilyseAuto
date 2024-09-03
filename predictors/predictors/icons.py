@@ -69,8 +69,12 @@ MODEL_CONFIG = {
 
 
 class IconPredictor(BasePredictor):
-    def __init__(self, version: int):
+    def __init__(self, version: int, weights_path: str = None):
         self.icon_model_config = MODEL_CONFIG[version]
+        
+        if weights_path is not None:
+            self.icon_model_config.weights = weights_path
+        
         self.predictor = TiledPredictor(
             self.detectron_cfg(self.icon_model_config),
             max_instance_size=self.icon_model_config.max_instance_size,

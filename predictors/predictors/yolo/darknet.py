@@ -134,7 +134,7 @@ def detect_image(network, class_names, image, thresh=0.5, hier_thresh=0.5, nms=0
     return sorted(predictions, key=lambda x: x[1])
 
 
-lib = CDLL("/usr/local/bin/libdarknet.so", RTLD_GLOBAL)
+lib = CDLL("/ifc_dl/external/darknet/libdarknet.so", RTLD_GLOBAL)
 
 
 lib.network_width.argtypes = [c_void_p]
