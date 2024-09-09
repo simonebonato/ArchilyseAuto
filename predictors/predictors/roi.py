@@ -9,11 +9,11 @@ from predictors.predictors.yolo import darknet
 
 
 class RoiPredictor(BasePredictor):
-    def __init__(self, threshold=0.5, roi_scale=1.1):
+    def __init__(self, path_to_config_file, path_to_weights, threshold=0.5, roi_scale=1.1):
         # TODO Hardcoded paths
         self.network = darknet.load_network(
-            config_file="resources/yolo-roi.cfg",
-            weights="resources/yolo-roi-latest.weights",
+            config_file=path_to_config_file,
+            weights=path_to_weights,
             batch_size=1,
         )
         self.threshold = threshold

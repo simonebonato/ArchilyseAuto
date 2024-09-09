@@ -7,6 +7,7 @@ Running the script requires opencv-python to be installed (`pip install opencv-p
 Directly viewing or returning bounding-boxed images requires scikit-image to be installed (`pip install scikit-image`)
 Use pip3 instead of pip on some systems to be sure to install modules for python3
 """
+import os
 from ctypes import (
     CDLL,
     POINTER,
@@ -133,9 +134,16 @@ def detect_image(network, class_names, image, thresh=0.5, hier_thresh=0.5, nms=0
     free_detections(detections, num)
     return sorted(predictions, key=lambda x: x[1])
 
+if os.name == 'nt':
+    dll_folder = "C:/Program Files/Darknet/bin"
+    path_to_dll = os.path.join(dll_folder, 'darknet.dll')
 
-lib = CDLL("/ifc_dl/external/darknet/libdarknet.so", RTLD_GLOBAL)
-
+    # TODO: Does this need to be on path, or could it only be for a subprocess?
+    os.environ["PATH"] = os.path.pathsep.join((dll_folder, os.environ["PATH"]))
+    lib = CDLL(path_to_dll, winmode=0, mode=RTLD_GLOBAL)
+else:
+    # TODO try on other os
+    raise RuntimeError('Unsupported os: ' + os.name)
 
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
@@ -218,9 +226,10 @@ load_meta = lib.get_metadata
 lib.get_metadata.argtypes = [c_char_p]
 lib.get_metadata.restype = METADATA
 
-load_image = lib.load_image_color
+# Not in dll
+"""load_image = lib.load_image_color
 load_image.argtypes = [c_char_p, c_int, c_int]
-load_image.restype = IMAGE
+load_image.restype = IMAGE"""
 
 rgbgr_image = lib.rgbgr_image
 rgbgr_image.argtypes = [IMAGE]
