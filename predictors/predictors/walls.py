@@ -62,7 +62,14 @@ class WallPredictor(BasePredictor):
     ENCODER_WEIGHTS = "imagenet"
 
     TORCH_MODEL_PATH = Path("resources/walls_model_latest.pth")
-    TORCH_DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+    
+    if torch.cuda.is_available():
+        TORCH_DEVICE = "cuda:0"
+    elif torch.backends.mps.is_available():
+        TORCH_DEVICE = "mps"
+    else:
+        TORCH_DEVICE = "cpu"
+    
 
     def __init__(self, model_path: Optional[Path] = None):
         from predictors.tasks.utils.logging import logger
