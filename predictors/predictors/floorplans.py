@@ -78,15 +78,25 @@ class FloorplanPredictor:
     ) -> MultiClassPrediction:
         labels: Tuple[ClassLabel, ...] = tuple()
         shapes: Tuple[Polygon, ...] = tuple()
+        confidences: Tuple[float, ...] = tuple()
 
         for roi_bbox in roi:
             image_roi = cls._get_image_roi_scaled(
                 image=image, roi_bbox=roi_bbox, pixels_per_meter=pixels_per_meter
             )
-            predicted_labels, predicted_shapes = model.predict(image_roi)
+            
+            # TODO: need to add the predicted confidences also on the other models
+            try:
+                predicted_labels, predicted_shapes, predicted_confidences = model.predict(image_roi)
+            except ValueError:
+                predicted_labels, predicted_shapes = model.predict(image_roi)
+                predicted_confidences = tuple(0 for _ in range(len(predicted_labels)))
+                
             labels += predicted_labels
             shapes += tuple(
                 cls._transform_shape(s, roi_bbox, pixels_per_meter)
                 for s in predicted_shapes
             )
-        return labels, shapes
+            confidences += predicted_confidences
+            
+        return labels, shapes, confidences

@@ -3,6 +3,7 @@ from itertools import chain
 from pathlib import Path
 from typing import Optional, Tuple
 
+import cv2
 import numpy as np
 import segmentation_models_pytorch as smp
 import torch
@@ -62,14 +63,13 @@ class WallPredictor(BasePredictor):
     ENCODER_WEIGHTS = "imagenet"
 
     TORCH_MODEL_PATH = Path("resources/walls_model_latest.pth")
-    
+
     if torch.cuda.is_available():
         TORCH_DEVICE = "cuda:0"
     elif torch.backends.mps.is_available():
         TORCH_DEVICE = "mps"
     else:
         TORCH_DEVICE = "cpu"
-    
 
     def __init__(self, model_path: Optional[Path] = None):
         from predictors.tasks.utils.logging import logger
@@ -93,15 +93,13 @@ class WallPredictor(BasePredictor):
         pred_mask = self.predict_tiled(image=image)
 
         wall_mask = np.clip(
-            np.maximum.reduce(
-                [
-                    pred_mask[SegmentationLabel.SEPARATORS.value],
-                    pred_mask[SegmentationLabel.WALLS.value],
-                    pred_mask[SegmentationLabel.OPENINGS.value],
-                    pred_mask[SegmentationLabel.DOORS.value],
-                    pred_mask[SegmentationLabel.WINDOWS.value],
-                ]
-            )
+            np.maximum.reduce([
+                pred_mask[SegmentationLabel.SEPARATORS.value],
+                pred_mask[SegmentationLabel.WALLS.value],
+                pred_mask[SegmentationLabel.OPENINGS.value],
+                pred_mask[SegmentationLabel.DOORS.value],
+                pred_mask[SegmentationLabel.WINDOWS.value],
+            ])
             - dilation(pred_mask[SegmentationLabel.RAILINGS.value], square(3)),
             0,
             1,
@@ -109,7 +107,7 @@ class WallPredictor(BasePredictor):
         window_mask = pred_mask[SegmentationLabel.WINDOWS.value]
         door_mask = pred_mask[SegmentationLabel.DOORS.value]
 
-        wall_shapes = MaskPostprocessor.get_rectangles(
+        wall_shapes, wall_confidences = MaskPostprocessor.get_rectangles(
             mask=wall_mask,
             pred_threshold=0.08,
             hough_threshold=11,
@@ -150,7 +148,11 @@ class WallPredictor(BasePredictor):
         shapes = (
             wall_shapes + railing_shapes + tuple(door_shapes) + tuple(window_shapes)
         )
-        return labels, tuple(shapes)
+        
+        # for the moment they are 0
+        confidences = tuple(wall_confidences) + tuple(0 for _ in range(len(railing_labels) + len(door_labels) + len(window_labels)))
+        
+        return labels, tuple(shapes), confidences
 
     def predict_railings(self, pred_mask: np.ndarray) -> Tuple[Polygon, ...]:
         railing_polygons = MaskPostprocessor.get_rectangles(
@@ -163,7 +165,7 @@ class WallPredictor(BasePredictor):
             segment_min_length=5,
         )
 
-        return tuple(railing_polygons)
+        return tuple(x for x in railing_polygons if isinstance(x, Polygon))
 
     def predict_tiled(self, image: Image) -> np.array:
         image = np.asarray(image)
@@ -331,7 +333,18 @@ class MaskPostprocessor:
             ]
         )
 
-        return tuple([r for r in rectangles if r is not None and not r.is_empty])
+        rectangles_as_polygons = tuple([r for r in rectangles if r is not None and not r.is_empty])
+
+        # turn the rectangles into binary masks 
+        # and use them to filter out the original mask
+        rect_confidence_scores = []
+        for rect_poly in rectangles_as_polygons:
+            mask_zeros = np.zeros_like(mask, dtype=np.uint8)
+            filled_mask = cv2.fillPoly(mask_zeros, [np.array(rect_poly.exterior.coords, dtype=np.int32)], 1)
+            rect_confidence_scores.append(np.mean(mask[filled_mask == 1]))
+
+            
+        return rectangles_as_polygons, rect_confidence_scores
 
     @classmethod
     def _get_line_proposals(
