@@ -8,8 +8,9 @@ import torch
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.engine import HookBase
 from evaluator import BBoxEvaluator
-from outputs import generate_plots
 from tiled_trainer import TiledPredictor
+
+from outputs import generate_plots
 
 
 class ValidationLoss(HookBase):

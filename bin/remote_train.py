@@ -53,7 +53,7 @@ def remote_train(
     CMDARGS = []
     if model == "detectron":
         CMDARGS = ["--train_detectron", commit_hash]
-    elif model ==  "deeplab":
+    elif model == "deeplab":
         CMDARGS = ["--train_deeplab", commit_hash]
     elif model == "dataset":
         CMDARGS = ["--dataset", commit_hash]

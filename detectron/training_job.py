@@ -13,8 +13,9 @@ from detectron2.engine import launch
 from detectron2.utils.comm import get_local_rank
 from detectron2.utils.logger import setup_logger
 from omegaconf import DictConfig, OmegaConf
-from outputs import generate_metrics
 from trainer import IconTrainer
+
+from outputs import generate_metrics
 
 logger = setup_logger()
 
